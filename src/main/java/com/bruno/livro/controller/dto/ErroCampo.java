@@ -1,5 +1,4 @@
 package com.bruno.livro.controller.dto;
 
-public class ErroCampo {
-
+public record ErroCampo(String campo, String erro) {
 }

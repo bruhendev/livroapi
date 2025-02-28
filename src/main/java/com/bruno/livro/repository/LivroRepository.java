@@ -4,8 +4,10 @@ import java.util.UUID;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import com.bruno.livro.model.Autor;
 import com.bruno.livro.model.Livro;
 
 public interface LivroRepository extends JpaRepository<Livro, UUID>{
 
+	boolean existsByAutor(Autor autor);
 }
