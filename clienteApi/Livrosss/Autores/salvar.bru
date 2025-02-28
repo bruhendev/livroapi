@@ -1,0 +1,19 @@
+meta {
+  name: salvar
+  type: http
+  seq: 1
+}
+
+post {
+  url: http://localhost:8080/autores
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "nome": "Autor 3",
+    "dataNascimento": "1971-01-01",
+    "nacionalidade": "Ingles"
+  }
+}
