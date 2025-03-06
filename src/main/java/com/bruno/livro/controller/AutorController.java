@@ -19,6 +19,7 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.bruno.livro.controller.dto.AutorDTO;
 import com.bruno.livro.controller.dto.ErroResposta;
+import com.bruno.livro.controller.mappers.AutorMapper;
 import com.bruno.livro.exceptions.OperacaoNaoPermitidaException;
 import com.bruno.livro.exceptions.RegistroDuplicadoException;
 import com.bruno.livro.model.Autor;
@@ -33,13 +34,16 @@ public class AutorController {
 	@Autowired
 	private AutorService service;
 
+	@Autowired
+	private AutorMapper mapper;
+
 	@PostMapping
-	public ResponseEntity<Object> salvar(@RequestBody @Valid AutorDTO autor) {
+	public ResponseEntity<Object> salvar(@RequestBody @Valid AutorDTO dto) {
 		try {
-			Autor autorEntity = autor.mapearParaAutor();
-			service.salvar(autorEntity);
-			URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}")
-					.buildAndExpand(autorEntity.getId()).toUri();
+			Autor autor = mapper.toEntity(dto);
+			service.salvar(autor);
+			URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(autor.getId())
+					.toUri();
 			return ResponseEntity.created(location).build();
 		} catch (RegistroDuplicadoException e) {
 			var erroDto = ErroResposta.conflito(e.getMessage());
@@ -75,22 +79,19 @@ public class AutorController {
 	@GetMapping("{id}")
 	public ResponseEntity<AutorDTO> obterDetalhes(@PathVariable String id) {
 		var idAutor = UUID.fromString(id);
-		var autorOptional = service.obterPorId(idAutor);
-		if (autorOptional.isPresent()) {
-			Autor autor = autorOptional.get();
-			AutorDTO dto = new AutorDTO(autor.getId(), autor.getNome(), autor.getDataNascimento(),
-					autor.getNacionalidade());
+
+		return service.obterPorId(idAutor).map(autor -> {
+			AutorDTO dto = mapper.toDto(autor);
 			return ResponseEntity.ok(dto);
-		}
-		return ResponseEntity.notFound().build();
+		}).orElseGet(() -> ResponseEntity.notFound().build());
+
 	}
 
 	@GetMapping()
 	public ResponseEntity<List<AutorDTO>> pesquisar(@RequestParam(required = false) String nome,
 			@RequestParam(required = false) String nacionalidade) {
 		var resultado = service.pesquisaByExample(nome, nacionalidade);
-		var lista = resultado.stream().map(autor -> new AutorDTO(autor.getId(), autor.getNome(),
-				autor.getDataNascimento(), autor.getNacionalidade())).toList();
+		var lista = resultado.stream().map(mapper::toDto).toList();
 		return ResponseEntity.ok(lista);
 	}
 

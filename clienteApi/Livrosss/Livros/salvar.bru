@@ -1,0 +1,22 @@
+meta {
+  name: salvar
+  type: http
+  seq: 1
+}
+
+post {
+  url: http://localhost:8080/livros
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "isbn": "978-0-306-40615-7",
+    "titulo": "O Último Suspiro",
+    "dataPublicacao": "1980-01-01",
+    "genero": "FICCAO",
+    "preco": 10,
+    "idAutor": "57c1c11d-9161-4d78-854c-6244577e6cb4"
+  }
+}
