@@ -1,5 +1,7 @@
 package com.bruno.livro.controller;
 
+import java.net.URI;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,19 +18,19 @@ import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("livros")
-public class LivroController {
-	
+public class LivroController implements GenericController {
+
 	@Autowired
 	private LivroService service;
-	
+
 	@Autowired
 	private LivroMapper mapper;
 
 	@PostMapping
 	public ResponseEntity<Object> salvar(@RequestBody @Valid CadastroLivroDTO dto) {
 		Livro livro = mapper.toEntity(dto);
-		
-		return ResponseEntity.ok(livro);
-//		return null;
+		service.salvar(livro);
+		URI url = gerarHeaderLocation(livro.getId());
+		return ResponseEntity.created(url).build();
 	}
 }

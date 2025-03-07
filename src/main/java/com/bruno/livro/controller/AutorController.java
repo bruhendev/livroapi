@@ -29,7 +29,7 @@ import jakarta.validation.Valid;
 
 @RestController
 @RequestMapping("autores")
-public class AutorController {
+public class AutorController implements GenericController {
 
 	@Autowired
 	private AutorService service;
@@ -42,8 +42,7 @@ public class AutorController {
 		try {
 			Autor autor = mapper.toEntity(dto);
 			service.salvar(autor);
-			URI location = ServletUriComponentsBuilder.fromCurrentRequest().path("/{id}").buildAndExpand(autor.getId())
-					.toUri();
+			URI location = gerarHeaderLocation(autor.getId());
 			return ResponseEntity.created(location).build();
 		} catch (RegistroDuplicadoException e) {
 			var erroDto = ErroResposta.conflito(e.getMessage());
