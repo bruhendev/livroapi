@@ -39,40 +39,29 @@ public class AutorController implements GenericController {
 
 	@PostMapping
 	public ResponseEntity<Object> salvar(@RequestBody @Valid AutorDTO dto) {
-		try {
-			Autor autor = mapper.toEntity(dto);
-			service.salvar(autor);
-			URI location = gerarHeaderLocation(autor.getId());
-			return ResponseEntity.created(location).build();
-		} catch (RegistroDuplicadoException e) {
-			var erroDto = ErroResposta.conflito(e.getMessage());
-			return ResponseEntity.status(erroDto.status()).body(erroDto);
-		}
+		Autor autor = mapper.toEntity(dto);
+		service.salvar(autor);
+		URI location = gerarHeaderLocation(autor.getId());
+		return ResponseEntity.created(location).build();
 	}
 
 	@PutMapping("{id}")
 	public ResponseEntity<Object> atualizar(@PathVariable String id, @RequestBody AutorDTO dto) {
-		try {
-			var idAutor = UUID.fromString(id);
-			var autorOptional = service.obterPorId(idAutor);
+		var idAutor = UUID.fromString(id);
+		var autorOptional = service.obterPorId(idAutor);
 
-			if (autorOptional.isEmpty()) {
-				return ResponseEntity.notFound().build();
-			}
-
-			var autor = autorOptional.get();
-			autor.setNome(dto.nome());
-			autor.setNacionalidade(dto.nacionalidade());
-			autor.setDataNascimento(dto.dataNascimento());
-
-			service.atualizar(autor);
-
-			return ResponseEntity.noContent().build();
-
-		} catch (RegistroDuplicadoException e) {
-			var erroDto = ErroResposta.conflito(e.getMessage());
-			return ResponseEntity.status(erroDto.status()).body(erroDto);
+		if (autorOptional.isEmpty()) {
+			return ResponseEntity.notFound().build();
 		}
+
+		var autor = autorOptional.get();
+		autor.setNome(dto.nome());
+		autor.setNacionalidade(dto.nacionalidade());
+		autor.setDataNascimento(dto.dataNascimento());
+
+		service.atualizar(autor);
+
+		return ResponseEntity.noContent().build();
 	}
 
 	@GetMapping("{id}")
@@ -96,17 +85,12 @@ public class AutorController implements GenericController {
 
 	@DeleteMapping("{id}")
 	public ResponseEntity<Object> deletar(@PathVariable String id) {
-		try {
-			var idAutor = UUID.fromString(id);
-			var autorOptional = service.obterPorId(idAutor);
-			if (autorOptional.isEmpty()) {
-				return ResponseEntity.notFound().build();
-			}
-			service.deletar(autorOptional.get());
-			return ResponseEntity.noContent().build();
-		} catch (OperacaoNaoPermitidaException e) {
-			var erroResposta = ErroResposta.respostaPadrao(e.getMessage());
-			return ResponseEntity.status(erroResposta.status()).body(erroResposta);
+		var idAutor = UUID.fromString(id);
+		var autorOptional = service.obterPorId(idAutor);
+		if (autorOptional.isEmpty()) {
+			return ResponseEntity.notFound().build();
 		}
+		service.deletar(autorOptional.get());
+		return ResponseEntity.noContent().build();
 	}
 }
